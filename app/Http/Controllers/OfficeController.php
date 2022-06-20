@@ -16,9 +16,15 @@ class OfficeController extends Controller
     {
         $page = $request->page;
         $limit = $request->limit;
+        $order = $request->order;
+        $orderBy = $request->orderBy;
 
         $rows_count = Office::all()->count();
-        $offices = Office::skip($page*$limit)->take($limit)->get();
+        if($orderBy){
+            $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+
+        }
+        else $offices = Office::skip($page*$limit)->take($limit)->get();
 
         return ['data'=>$offices, 'rows'=>$rows_count];
     }
