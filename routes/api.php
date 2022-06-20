@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Controllers\OfficeController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ModuleController;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -17,13 +18,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/auth/register', [AuthController::class, 'register']);
-
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'app'], function () {
         Route::apiResource('user', UserController::class);
+        Route::apiResource('office', OfficeController::class);
+        Route::apiResource('role', RoleController::class);
+        Route::apiResource('module', ModuleController::class);
     });
 
     Route::post('/auth/logout', [AuthController::class, 'logout']);
