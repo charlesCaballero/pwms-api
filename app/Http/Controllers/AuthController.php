@@ -15,19 +15,27 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         
+        try{
+            $user = User::create([
+                'company_id_number' => $request->company_id_number,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'office_id' => $request->office_id,
+                'password' => bcrypt($request->password),
+                'email' => $request->email
+            ]);
 
-        $user = User::create([
-            'company_id_number' => $request->company_id_number,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'office_id' => $request->office_id,
-            'password' => bcrypt($request->password),
-            'email' => $request->email
-        ]);
-
-        return $this->success([
-            'token' => $user->createToken('API Token')->plainTextToken
-        ]);
+            return $this->success([
+                'token' => $user->createToken('API Token')->plainTextToken
+            ]);
+        } catch(\Illuminate\Database\QueryException $ex){ 
+            $message =$ex->getMessage();
+            $error = ''; 
+            if (str_contains($message,'SQLSTATE[23000]')) {
+                $error = 'Your id number is already registered. Please try a different id number or contact the administrator.';
+            }
+            return $this->error($error,500);
+        }
     }
 
     public function login(Request $request)
@@ -38,7 +46,10 @@ class AuthController extends Controller
         ];
 
         if (!Auth::attempt($credentials)) {
-            return $this->error('Your user id or password did not match to any of our record.', 401);
+            return $this->error('Your user id or password did not match.', 401);
+        }
+        if (Auth::user()->status === 0) {
+            return $this->error('Your account is not yet activated.', 401);
         }
 
         return $this->success([

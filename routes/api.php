@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\RoleController;
@@ -30,4 +31,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+});
+
+Route::group(['prefix'=>'get'], function (){
+    Route::get('offices', [GetController::class, 'getOffices']);
 });
