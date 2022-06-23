@@ -18,13 +18,30 @@ class OfficeController extends Controller
         $limit = $request->limit;
         $order = $request->order;
         $orderBy = $request->orderBy;
+        $search = $request->search;
 
-        $rows_count = Office::all()->count();
-        if($orderBy){
-            $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
-
+        if($search){
+            $query = Office::query();
+            $columns = ['name', 'acronym', 'code'];
+            foreach($columns as $column){
+                $query->orWhere($column, 'LIKE', '%' . $search . '%');
+            }
+            $rows_count =  $query->count();
+            if($orderBy){
+                $offices = $query->orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+            }
+            else {
+                $offices = $query->skip($page*$limit)->take($limit)->get();
+            }
         }
-        else $offices = Office::skip($page*$limit)->take($limit)->get();
+        else if($orderBy){
+            $rows_count = Office::all()->count();
+            $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+        }
+        else {
+            $rows_count = Office::all()->count();
+            $offices = Office::skip($page*$limit)->take($limit)->get();
+        }
 
         return ['data'=>$offices, 'rows'=>$rows_count];
     }
