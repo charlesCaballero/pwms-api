@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Office;
 use Illuminate\Http\Request;
+use Mockery\Undefined;
 
 class OfficeController extends Controller
 {
@@ -19,8 +20,32 @@ class OfficeController extends Controller
         $order = $request->order;
         $orderBy = $request->orderBy;
         $search = $request->search;
+        $filters = json_decode($request->filters);
 
-        if($search){
+        
+
+        if (isset($filters)) {
+            $rows_count = Office::all()->count();
+            $where_arr = [];
+            for ($index=0; $index < count($filters); $index++) { 
+                if($filters[$index]->operator==='contains') array_push($where_arr, [$filters[$index]->column, 'like', '%' . $filters[$index]->value . '%']);
+                if($filters[$index]->operator==='matches with') array_push($where_arr, [$filters[$index]->column, '=', $filters[$index]->value]);
+                if($filters[$index]->operator==='ends with') array_push($where_arr, [$filters[$index]->column, 'like', '%' . $filters[$index]->value]);
+                if($filters[$index]->operator==='starts with') array_push($where_arr, [$filters[$index]->column, 'like', $filters[$index]->value . '%']);
+                if($filters[$index]->operator==='is empty') array_push($where_arr, [$filters[$index]->column, '=', null]);
+                if($filters[$index]->operator==='not empty') array_push($where_arr, [$filters[$index]->column, '!=', null]);
+            }
+
+            $rows_count = Office::where($where_arr)->count();
+
+            if($orderBy){
+            $offices = Office::where($where_arr)->orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+            }
+            else {
+            $offices = Office::where($where_arr)->skip($page*$limit)->take($limit)->get();
+            }
+        }
+        else if(isset($search)){
             $query = Office::query();
             $columns = ['name', 'acronym', 'code'];
             foreach($columns as $column){
@@ -34,13 +59,12 @@ class OfficeController extends Controller
                 $offices = $query->skip($page*$limit)->take($limit)->get();
             }
         }
-        else if($orderBy){
-            $rows_count = Office::all()->count();
-            $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
-        }
         else {
             $rows_count = Office::all()->count();
-            $offices = Office::skip($page*$limit)->take($limit)->get();
+            if($orderBy){
+                $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+            }
+            else $offices = Office::skip($page*$limit)->take($limit)->get();
         }
 
         return ['data'=>$offices, 'rows'=>$rows_count];
