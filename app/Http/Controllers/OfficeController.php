@@ -22,7 +22,28 @@ class OfficeController extends Controller
         $search = $request->search;
         $filters = json_decode($request->filters);
 
-        
+        if($search !== '' && $search !== null ){
+            unset($filters);
+            $query = Office::query();
+            $columns = ['name', 'acronym', 'code'];
+            foreach($columns as $column){
+                $query->orWhere($column, 'LIKE', '%' . $search . '%');
+            }
+            $rows_count =  $query->count();
+            if($orderBy){
+                $offices = $query->orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+            }
+            else {
+                $offices = $query->skip($page*$limit)->take($limit)->get();
+            }
+        }
+        else {
+            $rows_count = Office::all()->count();
+            if($orderBy){
+                $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
+            }
+            else $offices = Office::skip($page*$limit)->take($limit)->get();
+        }
 
         if (isset($filters)) {
             $rows_count = Office::all()->count();
@@ -45,27 +66,8 @@ class OfficeController extends Controller
             $offices = Office::where($where_arr)->skip($page*$limit)->take($limit)->get();
             }
         }
-        else if(isset($search)){
-            $query = Office::query();
-            $columns = ['name', 'acronym', 'code'];
-            foreach($columns as $column){
-                $query->orWhere($column, 'LIKE', '%' . $search . '%');
-            }
-            $rows_count =  $query->count();
-            if($orderBy){
-                $offices = $query->orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
-            }
-            else {
-                $offices = $query->skip($page*$limit)->take($limit)->get();
-            }
-        }
-        else {
-            $rows_count = Office::all()->count();
-            if($orderBy){
-                $offices = Office::orderBy($orderBy, $order)->skip($page*$limit)->take($limit)->get();
-            }
-            else $offices = Office::skip($page*$limit)->take($limit)->get();
-        }
+
+        
 
         return ['data'=>$offices, 'rows'=>$rows_count];
     }
