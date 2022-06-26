@@ -27,6 +27,7 @@ return new class extends Migration
             $table->unsignedBigInteger('role_id')->nullable();
             $table->foreign('office_id')->references('id')->on('offices');
             $table->foreign('role_id')->references('id')->on('roles');
+            $table->binary('photo')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

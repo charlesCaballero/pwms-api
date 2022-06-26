@@ -24,6 +24,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'app'], function () {
+        Route::post('user/photo', [UserController::class, 'changePhoto']);
         Route::apiResource('user', UserController::class);
         Route::apiResource('office', OfficeController::class);
         Route::apiResource('role', RoleController::class);
@@ -33,6 +34,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 });
 
-Route::group(['prefix'=>'get'], function (){
+Route::group(['prefix' => 'get'], function () {
     Route::get('offices', [GetController::class, 'getOffices']);
 });
