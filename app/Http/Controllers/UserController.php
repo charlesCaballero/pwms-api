@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+
+    use ApiResponser;
+
     /**
      * Display a listing of the resource.
      *
@@ -35,7 +40,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        
     }
 
     /**
@@ -46,7 +50,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user_data = User::where('company_id_number', $id)->get();
+        $user_data = User::where('company_id_number', $id)->with('role')->with('office')->get();
         return $user_data;
     }
 
@@ -82,5 +86,23 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function changePhoto(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        if ($request->photo) {
+            try {
+                $changePhoto = User::where('id', $user_id)->update($request->all());
+                return $changePhoto;
+            } catch (\Illuminate\Database\QueryException $ex) {
+                $message = $ex->getMessage();
+                $error = '';
+                if (str_contains($message, 'SQLSTATE[22001]')) {
+                    $error = 'Image size is too large.';
+                }
+                return $this->error($error, 500);
+            }
+        } else return $this->error('Error.. empty photo.' . json_encode($request->all()), 500);
     }
 }
