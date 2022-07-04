@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Classes\ApiDataTable;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +18,18 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $datatable = new ApiDataTable();
+        return $datatable->data_table_query(
+            $request->page,
+            $request->limit,
+            $request->order,
+            $request->orderBy,
+            $request->search,
+            json_decode($request->filters),
+            'User'
+        );
     }
 
     /**

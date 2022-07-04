@@ -2,18 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ApiDataTable;
 use Illuminate\Http\Request;
+// use App\Models\Role;
 
 class RoleController extends Controller
 {
+    // use ApiDataTable;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $datatable = new ApiDataTable();
+        return $datatable->data_table_query(
+            $request->page,
+            $request->limit,
+            $request->order,
+            $request->orderBy,
+            $request->search,
+            json_decode($request->filters),
+            'Role'
+        );
     }
 
     /**
