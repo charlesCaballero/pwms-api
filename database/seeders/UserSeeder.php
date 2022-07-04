@@ -22,6 +22,7 @@ class UserSeeder extends Seeder
             'role_id'=> 1,
             'modules'=>  json_encode(['*']),
             'email'=> 'charles.g.caballero@gmail.com',
+            'permissions'=> 'rwud',
             'password'=> bcrypt('456Knight'),
             'status'=> true,
             'email_verified_at'=>now(),
