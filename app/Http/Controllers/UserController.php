@@ -51,6 +51,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user_data = User::where('company_id_number', $id)->with('role')->with('office')->get();
+        // dd($user_data);
         return $user_data;
     }
 
