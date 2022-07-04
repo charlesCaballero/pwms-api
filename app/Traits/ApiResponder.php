@@ -12,8 +12,8 @@ use Carbon\Carbon;
 | This trait will be used for any response we sent to clients.
 |
 */
-
-trait ApiResponser
+// git hub current token: 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
+trait ApiResponder
 {
 	/**
      * Return a success JSON response.
