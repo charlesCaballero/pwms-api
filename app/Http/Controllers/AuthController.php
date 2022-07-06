@@ -22,7 +22,7 @@ class AuthController extends Controller
                 'last_name' => $request->last_name,
                 'office_id' => $request->office_id,
                 'password' => bcrypt($request->password),
-                'email' => $request->email
+                'email' => $request->email,
             ]);
 
             return $this->success([
@@ -33,6 +33,9 @@ class AuthController extends Controller
             $error = ''; 
             if (str_contains($message,'SQLSTATE[23000]')) {
                 $error = 'Your id number is already registered. Please try a different id number or contact the administrator.';
+            }
+            else {
+                $error = $message;
             }
             return $this->error($error,500);
         }
