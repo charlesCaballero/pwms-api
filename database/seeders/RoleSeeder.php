@@ -15,8 +15,14 @@ class RoleSeeder extends Seeder
     public function run()
     {
         Role::insert([
-            'name'=>'Developer',
-            'abbreviation'=>'Dev',
+            [
+                'name'=>'Developer',
+                'abbreviation'=>'Dev',
+            ]
+            ,[
+                'name'=>'Document Custodian',
+                'abbreviation'=>'DC',
+            ]
         ]);
     }
 }
