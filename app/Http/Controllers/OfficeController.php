@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Classes\ApiDataTable;
 use App\Models\Office;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 // use Mockery\Undefined;
 
 class OfficeController extends Controller
@@ -81,6 +83,7 @@ class OfficeController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Auth::user()->modules
         $update = Office::where('id', $id)->update($request->all());
         return $update;
     }

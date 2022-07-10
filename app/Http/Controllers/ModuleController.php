@@ -15,11 +15,16 @@ class ModuleController extends Controller
     public function index(Request $request)
     {
         $module_id = json_decode($request->modules);
-        if($module_id[0] === '*'){
+        $select = $request->select;
+
+        if (isset($select)) {
             $modules = Module::all();
-        }
-        else{
-            $modules = Module::whereIn('id', $module_id)->get();
+        } else {
+            $module_ids = [];
+            foreach ($module_id as $module) {
+                array_push($module_ids, $module->moduleId);
+            }
+            $modules = Module::whereIn('id', $module_ids)->get();
         }
         return $modules;
     }

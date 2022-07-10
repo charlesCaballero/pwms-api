@@ -15,17 +15,17 @@ class UserSeeder extends Seeder
     public function run()
     {
         User::insert([
-            'company_id_number'=> '30734319',
-            'first_name'=> 'Charles',
-            'last_name'=> 'Caballero',
-            'office_id'=> 1,
-            'role_id'=> 1,
-            'modules'=>  json_encode(['*']),
-            'email'=> 'charles.g.caballero@gmail.com',
-            'permissions'=> 'rwud',
-            'password'=> bcrypt('456Knight'),
-            'status'=> true,
-            'email_verified_at'=>now(),
+            'company_id_number' => '30734319',
+            'first_name' => 'Charles',
+            'last_name' => 'Caballero',
+            'office_id' => 1,
+            'role_id' => 1,
+            'modules' =>  json_encode(['*']),
+            'email' => 'charles.g.caballero@gmail.com',
+            // 'permissions'=> 'rwud',
+            'password' => bcrypt('456Knight'),
+            'status' => true,
+            'email_verified_at' => now(),
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Module;
 use App\Classes\ApiDataTable;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -58,9 +59,20 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $user_data = User::where('company_id_number', $id)->with('role')->with('office')->get();
+        if (isset($request->select)) {
+            $user_modules = User::select('modules')->where('company_id_number', $id)->get();
+            if (in_array('*', json_decode($user_modules[0]->modules))) {
+                $modules = Module::select(['id', 'reference'])->get();
+            } else {
+                $user_modules_id_arr = array_column(json_decode($user_modules[0]->modules), 'moduleId');
+                $modules = Module::select(['id', 'reference'])->whereIn('id', $user_modules_id_arr)->get();
+            }
+            $user_data = ['userModule' => json_decode($user_modules[0]->modules), 'moduleDetails' => $modules];
+        } else {
+            $user_data = User::where('company_id_number', $id)->with('role')->with('office')->get();
+        }
         // dd($user_data);
         return $user_data;
     }
@@ -85,7 +97,8 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $update = User::where('company_id_number', $id)->update($request->all());
+        return $update;
     }
 
     /**
