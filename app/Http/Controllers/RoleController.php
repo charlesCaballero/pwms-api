@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Classes\ApiDataTable;
 use Illuminate\Http\Request;
-// use App\Models\Role;
+use App\Models\Role;
 
 class RoleController extends Controller
 {
@@ -16,16 +16,21 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $datatable = new ApiDataTable();
-        return $datatable->data_table_query(
-            $request->page,
-            $request->limit,
-            $request->order,
-            $request->orderBy,
-            $request->search,
-            json_decode($request->filters),
-            'Role'
-        );
+        if(isset($request->select)){
+            return Role::select(['name', "abbreviation", "id" ])->get();
+        }
+        else {
+            $datatable = new ApiDataTable();
+            return $datatable->data_table_query(
+                $request->page,
+                $request->limit,
+                $request->order,
+                $request->orderBy,
+                $request->search,
+                json_decode($request->filters),
+                'Role'
+            );
+        }
     }
 
     /**
