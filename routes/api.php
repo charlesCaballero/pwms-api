@@ -36,4 +36,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 Route::group(['prefix' => 'get'], function () {
     Route::get('offices', [GetController::class, 'getOffices']);
+    Route::get('retentions', [GetController::class, 'getRetentions']);
 });

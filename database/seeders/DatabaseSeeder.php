@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             OfficeSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
+            DocumentRetentionsSeeder::class,
         ]);
     }
 }

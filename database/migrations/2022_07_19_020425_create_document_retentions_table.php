@@ -16,9 +16,9 @@ class CreateDocumentRetentionsTable extends Migration
         Schema::create('document_retentions', function (Blueprint $table) {
             $table->id();
             $table->string('rds_no',6);
-            $table->string('rds_item_no',3);
+            $table->string('rds_item_no');
             $table->string('series_title_description');
-            $table->string('retention_period',2);
+            $table->string('retention_period');
             $table->string('dept_unit');
             $table->timestamps();
         });
