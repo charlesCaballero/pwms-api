@@ -17,11 +17,23 @@ class RoleSeeder extends Seeder
         Role::insert([
             [
                 'name'=>'Developer',
-                'abbreviation'=>'Dev',
+                'abbreviation'=>'dev',
             ]
             ,[
-                'name'=>'Document Custodian',
-                'abbreviation'=>'DC',
+                'name'=>'User',
+                'abbreviation'=>'user',
+            ]
+            ,[
+                'name'=>'Supervisor',
+                'abbreviation'=>'sup',
+            ]
+            ,[
+                'name'=>'Staff',
+                'abbreviation'=>'staff',
+            ]
+            ,[
+                'name'=>'Guest',
+                'abbreviation'=>'guest',
             ]
         ]);
     }
