@@ -15,11 +15,11 @@ class CreateStorageRequestsTable extends Migration
     {
         Schema::create('storage_requests', function (Blueprint $table) {
             $table->id();
-            $table->string('form_no')->unique();
+            $table->string('form_no');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('office_id');
             $table->unsignedBigInteger('inventory_id');
-            $table->date('date_stored');
+            $table->date('date_stored')->nullable();
             $table->string('status', 20);
             $table->string('remarks');
             $table->foreign('office_id')->references('id')->on('offices');

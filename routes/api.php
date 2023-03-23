@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\StorageRequestController;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('office', OfficeController::class);
         Route::apiResource('role', RoleController::class);
         Route::apiResource('module', ModuleController::class);
+        Route::apiResource('inventory', InventoryController::class);
+        Route::group(['prefix' => 'request'], function () {
+            Route::apiResource('storage', StorageRequestController::class);
+        });
     });
 
     Route::post('/auth/logout', [AuthController::class, 'logout']);
