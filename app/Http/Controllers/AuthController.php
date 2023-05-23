@@ -21,6 +21,7 @@ class AuthController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'office_id' => $request->office_id,
+                'role_id' => 7,//default role is Guest
                 'password' => bcrypt($request->password),
                 'email' => $request->email,
             ]);
@@ -32,7 +33,8 @@ class AuthController extends Controller
             $message =$ex->getMessage();
             $error = ''; 
             if (str_contains($message,'SQLSTATE[23000]')) {
-                $error = 'Your id number is already registered. Please try a different id number or contact the administrator.';
+                // $error = 'Your id number is already registered. Please try a different id number or contact the administrator.';
+                $error = $message;
             }
             else {
                 $error = $message;

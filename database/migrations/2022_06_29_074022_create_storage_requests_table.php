@@ -20,7 +20,7 @@ class CreateStorageRequestsTable extends Migration
             $table->unsignedBigInteger('office_id');
             $table->unsignedBigInteger('inventory_id');
             $table->date('date_stored')->nullable();
-            $table->string('status', 20);
+            $table->string('status', 50);
             $table->string('remarks');
             $table->foreign('office_id')->references('id')->on('offices');
             $table->foreign('user_id')->references('id')->on('users');

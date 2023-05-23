@@ -19,8 +19,8 @@ class CreateDisposalRequestsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('office_id');
             $table->unsignedBigInteger('inventory_id');
-            $table->date('date_disposed');
-            $table->string('status', 20);
+            $table->date('date_disposed')->nullable();
+            $table->string('status', 50);
             $table->string('remarks');
             $table->foreign('office_id')->references('id')->on('offices');
             $table->foreign('user_id')->references('id')->on('users');

@@ -20,6 +20,7 @@ class Inventory extends Model
         'office_id',
         'box_code',
         'box_details',
+        'remarks',
         'disposal_date',
         'location',
         'status',

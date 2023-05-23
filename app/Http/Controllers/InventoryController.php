@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Inventory;
 use App\Models\StorageRequest;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\Builder;
 use Auth;
 
 class InventoryController extends Controller
@@ -36,9 +38,10 @@ class InventoryController extends Controller
                 'office_id'     => $box["office_id"],
                 'box_code'      => $box["box_code"],
                 'box_details'   => json_encode($box["box_details"]),
+                'remarks'       => $box["remarks"],
                 'disposal_date' => $box["disposal_date"],
                 'location'      => 'Processing',
-                'status'        => 'Ongoing request',
+                'status'        => 'Awaiting storage request',
             ]);
             $lastId = Inventory::latest()->value('id');
             $storage = StorageRequest::create([
@@ -46,16 +49,22 @@ class InventoryController extends Controller
                 'user_id'       => Auth::user()->id,
                 'office_id'     => $request->all()[0]["office_id"],
                 'inventory_id'  => $lastId,
-                'status'        => 'Ongoing request',
+                'status'        => 'Awaiting storage request',
                 'remarks'       => ' ',
                 // 'date_stored'   => null
             ]);
         }        
-        
-        
+        $data['details'] = $request->all();
+        $data["form_no"] = 'S-'.date('Y').'-'.str_pad($newStorageReqForm, 3, '0', STR_PAD_LEFT);
+        $explodeBoxCode = explode('-', $data['details'][0]["box_code"]);
+        $data["office"] = $explodeBoxCode[0];
+        $user = User::find(Auth::user()->id);
+        $firstName = $user->first_name;
+        $lastName = $user->last_name;
+        $data["user_name"] = $firstName . ' ' . $lastName;
         return $this->success(
-            null,
-            $newStorageReqForm
+            $data,
+            'Success',
         );
     }
 
@@ -67,7 +76,7 @@ class InventoryController extends Controller
      */
     public function show(Inventory $inventory)
     {
-        //
+        return $inventory;
     }
 
     /**
@@ -91,5 +100,21 @@ class InventoryController extends Controller
     public function destroy(Inventory $inventory)
     {
         //
+    }
+
+    public function search($officeID,$keyword)
+    {
+        $data = Inventory::where('office_id', $officeID)
+                        ->where('status', 'like', '%Awaiting storage request%')
+                        ->where(function (Builder $query) use ($keyword){
+                            return $query->where('box_code', 'like', '%'.$keyword.'%')
+                                        ->orWhere('box_details', 'like', '%'.$keyword.'%')
+                                        ->orWhere('remarks', 'like', '%'.$keyword.'%')
+                                        ->orWhere('disposal_date', 'like', '%'.$keyword.'%');
+                        })
+                        ->get();
+        
+        // dd($data);
+        return $data;
     }
 }

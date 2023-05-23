@@ -38,26 +38,62 @@ class ApiDataTable
             unset($filters);
             $query = $model_name->query();
             $table = $model_name->getTable();
-            $columns = Schema::getColumnListing($table);;
+            $columns = Schema::getColumnListing($table);
             foreach ($columns as $column) {
                 $query->orWhere($column, 'LIKE', '%' . $search . '%');
             }
             $rows_count =  $query->count();
             if ($orderBy) {
-                $data = $model === 'User' ? $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
-                    $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                // $data = $model === 'User' ? $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
+                //     $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                if($model === 'User'){
+                    $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                }
+                elseif ($model === 'WithdrawalRequest') {
+                    $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                }
+                else {
+                    $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                }
             } else {
-                $data = $model === 'User' ? $query->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
-                    $query->skip($page * $limit)->take($limit)->get();
+                // $data = $model === 'User' ? $query->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
+                //     $query->skip($page * $limit)->take($limit)->get();
+                if($model === 'User'){
+                    $data = $query->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                }
+                elseif ($model === 'WithdrawalRequest') {
+                    $data = $query->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                }
+                else {
+                    $data = $query->skip($page * $limit)->take($limit)->get();
+                }
             }
         } else {
             $rows_count = $model_name->all()->count();
             if ($orderBy) {
-                $data = $model === 'User' ? $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
-                    $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                // $data = $model === 'User' ? $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
+                //     $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                if($model === 'User'){
+                    $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                }
+                elseif ($model === 'WithdrawalRequest') {
+                    $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                }
+                else {
+                    $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                }
             } else {
-                $data = $model === 'User' ? $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
-                    $model_name->skip($page * $limit)->take($limit)->get();
+                if($model === 'User'){
+                    $data = $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                }
+                elseif ($model === 'WithdrawalRequest') {
+                    $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                }
+                else {
+                    $data = $model_name->skip($page * $limit)->take($limit)->get();
+                }
+                // $data = $model === 'User' ? $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
+                //     $model_name->skip($page * $limit)->take($limit)->get();
             }
         }
 
@@ -75,11 +111,27 @@ class ApiDataTable
             $rows_count = $model_name->where($where_arr)->count();
 
             if ($orderBy) {
-                $data = $model === 'User' ? $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
-                    $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                // $data = $model === 'User' ? $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
+                //     $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                if($model === 'User'){
+                    $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                }
+                elseif ($model === 'WithdrawalRequest') {
+                    $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                }
+                else{
+                    $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                }
             } else {
-                $data = $model === 'User' ? $model_name->where($where_arr)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
-                    $model_name->where($where_arr)->skip($page * $limit)->take($limit)->get();
+                if($model === 'User'){
+                    $data = $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                }
+                elseif ($model === 'WithdrawalRequest') {
+                    $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                }
+                else {
+                    $data = $model_name->skip($page * $limit)->take($limit)->get();
+                }
             }
         }
 

@@ -8,6 +8,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\StorageRequestController;
+use App\Http\Controllers\WithdrawalRequestController;
+use App\Http\Controllers\ReturnRequestController;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +36,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('inventory', InventoryController::class);
         Route::group(['prefix' => 'request'], function () {
             Route::apiResource('storage', StorageRequestController::class);
+            Route::apiResource('withdrawal', WithdrawalRequestController::class);
+            Route::apiResource('return', ReturnRequestController::class);
         });
     });
 
@@ -43,4 +47,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 Route::group(['prefix' => 'get'], function () {
     Route::get('offices', [GetController::class, 'getOffices']);
     Route::get('retentions', [GetController::class, 'getRetentions']);
+    Route::get('inventory/boxcode/{officeID}', [GetController::class, 'getNewBoxCode']);
+});
+
+Route::group(['prefix' => 'search'], function () {
+    Route::get('inventory/{officeID}/{keyword}', [InventoryController::class, 'search']);
 });

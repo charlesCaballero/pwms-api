@@ -18,9 +18,10 @@ class CreateInventoriesTable extends Migration
             $table->unsignedBigInteger('office_id');
             $table->string('box_code')->unique();
             $table->json('box_details');
+            $table->string('remarks')->nullable();
             $table->string('disposal_date', 30);
             $table->string('location', 10);
-            $table->string('status', 20);
+            $table->string('status', 50);
             $table->foreign('office_id')->references('id')->on('offices');
             $table->timestamps();
         });

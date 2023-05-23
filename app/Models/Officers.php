@@ -7,19 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class ReturnRequest extends Model
+class Officers extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
-
-
-    protected $table = 'return_requests';
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'form_no',
-        'user_id',
+        'first_name',
+        'middle_initial',
+        'last_name',
+        'extension',
+        'title',
         'office_id',
-        'inventory_id',
-        'status',
-        'remarks',
-        'date_returned'
     ];
 }
