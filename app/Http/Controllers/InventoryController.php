@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ApiDataTable;
 use App\Models\User;
 use App\Models\Inventory;
 use App\Models\StorageRequest;
+use App\Models\WithdrawalRequest;
+use App\Models\ReturnRequest;
+use App\Models\DisposalRequest;
+use App\Models\Office;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 use Auth;
 
 class InventoryController extends Controller
@@ -18,9 +24,29 @@ class InventoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($type,Request $request)
     {
-        //
+        $datatable = new ApiDataTable();
+        $result = $datatable->data_table_query(
+            $request->page,
+            $request->limit,
+            $request->order,
+            $request->orderBy,
+            $request->search,
+            json_decode($request->filters),
+            'Inventory',
+            $type==='show'?'':'Ongoing '.$type//query with status 
+        );
+        $index = 0;
+        foreach ($result['data'] as $row) {
+            $office = Office::where('id', $row['storage']['office_id'])->first();
+            $user = User::where('id', $row['storage']['user_id'])->first();
+            $result['data'][$index]['office'] = $office;
+            $result['data'][$index]['user'] = $user;
+            $index++;
+        }
+
+        return $result;
     }
 
     /**
@@ -41,15 +67,14 @@ class InventoryController extends Controller
                 'remarks'       => $box["remarks"],
                 'disposal_date' => $box["disposal_date"],
                 'location'      => 'Processing',
-                'status'        => 'Awaiting storage request',
+                'status'        => 'Awaiting storage request form',
             ]);
-            $lastId = Inventory::latest()->value('id');
             $storage = StorageRequest::create([
                 'form_no'       => 'S-'.date('Y').'-'.str_pad($newStorageReqForm, 3, '0', STR_PAD_LEFT),
                 'user_id'       => Auth::user()->id,
                 'office_id'     => $request->all()[0]["office_id"],
-                'inventory_id'  => $lastId,
-                'status'        => 'Awaiting storage request',
+                'inventory_id'  => $inventory->id,
+                'status'        => 'Awaiting storage request form',
                 'remarks'       => ' ',
                 // 'date_stored'   => null
             ]);
@@ -86,9 +111,47 @@ class InventoryController extends Controller
      * @param  \App\Models\Inventory  $inventory
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Inventory $inventory)
+    public function update(Request $request, $type, $id)
     {
-        //
+        $req=$request->all();
+        
+        Inventory::where('id', $id)->update([
+            'status'        => $type==='storage'?'In storage':($type==='withdrawal'?'Box Retrieved':($type==='disposal'?'Box Disposed':'In storage')),
+            'location'      => $req['location'],
+        ]);
+        if($type==='storage'){
+            StorageRequest::where('id', $req['storage']['id'])->update([
+                'status'        => 'Done',
+                'date_stored'   => Carbon::now(),
+                'remarks'       => $req['storage']['remarks'],
+            ]);
+        }
+        elseif($type==='withdrawal'){
+            WithdrawalRequest::where('id', $req['withdrawal']['id'])->update([
+                'status'            => 'Retrieved',
+                'date_retrieved'    => Carbon::now(),
+            ]);
+        }
+        elseif($type==='return'){
+            ReturnRequest::where('id', $req['return']['id'])->update([
+                'status'            => 'Returned',
+                'date_returned'    => Carbon::now(),
+                'remarks'       => $req['return']['remarks'],
+            ]);
+            WithdrawalRequest::where('id', $req['withdrawal']['id'])->update([
+                'status'            => 'Returned',
+            ]);
+        }
+        elseif($type==='disposal'){
+            DisposalRequest::where('id', $req['disposal']['id'])->update([
+                'status'            => 'Disposed',
+                'date_disposed'    => Carbon::now(),
+                'remarks'       => $req['disposal']['remarks'],
+            ]);
+        }
+        return $this->success(
+            'Success',
+        );
     }
 
     /**
@@ -105,7 +168,7 @@ class InventoryController extends Controller
     public function search($officeID,$keyword)
     {
         $data = Inventory::where('office_id', $officeID)
-                        ->where('status', 'like', '%Awaiting storage request%')
+                        ->where('status', 'like', '%In storage%')
                         ->where(function (Builder $query) use ($keyword){
                             return $query->where('box_code', 'like', '%'.$keyword.'%')
                                         ->orWhere('box_details', 'like', '%'.$keyword.'%')

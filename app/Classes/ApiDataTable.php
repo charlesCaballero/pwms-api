@@ -3,6 +3,7 @@
 namespace App\Classes;
 
 use Illuminate\Support\Facades\Schema;
+use DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +31,9 @@ class ApiDataTable
         string $orderBy = null,
         string $search = null,
         $filters = [],
-        $model = null
+        $model = null,
+        string $status = null,
+        $date = null
     ) {
         $get_model = 'App\Models\\' . $model;
         $model_name = new $get_model;
@@ -42,55 +45,166 @@ class ApiDataTable
             foreach ($columns as $column) {
                 $query->orWhere($column, 'LIKE', '%' . $search . '%');
             }
-            $rows_count =  $query->count();
+            // $rows_count =  $query->count();
             if ($orderBy) {
                 // $data = $model === 'User' ? $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
                 //     $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
                 if($model === 'User'){
                     $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                    $rows_count = $data->count();
                 }
-                elseif ($model === 'WithdrawalRequest') {
-                    $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                elseif (str_contains($model, 'Request')) {
+                    // $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status){
+                        $data = $query->where('status', 'like', '%'.$status.'%')->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                }
+                elseif ($model === 'Inventory') {
+                    // $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status && $date===null){
+                        $data = $query->where('status', 'like', '%'.$status.'%')->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    elseif($status && $date){
+                        $data = $query->where([
+                            ['status', 'like', '%'.$status.'%'],
+                            [DB::raw("STR_TO_DATE(CONCAT(disposal_date,' 30'),'%M %Y %d')"), '<', $date],
+                            ])->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
                 }
                 else {
                     $data = $query->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                    $rows_count = $data->count();
                 }
             } else {
                 // $data = $model === 'User' ? $query->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
                 //     $query->skip($page * $limit)->take($limit)->get();
                 if($model === 'User'){
                     $data = $query->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                    $rows_count = $data->count();
                 }
-                elseif ($model === 'WithdrawalRequest') {
-                    $data = $query->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                elseif (str_contains($model, 'Request')) {
+                    // $data = $query->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status){
+                        $data = $query->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $query->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                }
+                elseif ($model === 'Inventory') {
+                    // $data = $query->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status && $date===null){
+                        $data = $query->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    elseif($status && $date){
+                        $data = $query->where([
+                            ['status', 'like', '%'.$status.'%'],
+                            [DB::raw("STR_TO_DATE(CONCAT(disposal_date,' 30'),'%M %Y %d')"), '<', $date],
+                            ])->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $query->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
                 }
                 else {
                     $data = $query->skip($page * $limit)->take($limit)->get();
+                    $rows_count = $data->count();
                 }
             }
         } else {
-            $rows_count = $model_name->all()->count();
+            // $rows_count = $model_name->all()->count();
             if ($orderBy) {
                 // $data = $model === 'User' ? $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
                 //     $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
                 if($model === 'User'){
                     $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                    $rows_count = $data->count();
                 }
-                elseif ($model === 'WithdrawalRequest') {
-                    $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                elseif (str_contains($model, 'Request')) {
+                    if($status){
+                        $data = $model_name->where('status', 'like', '%'.$status.'%')->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                }
+                elseif ($model === 'Inventory') {
+                    // $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status && $date===null){
+                        $data = $model_name->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    elseif($status && $date){
+                        $data = $model_name->where([
+                            ['status', 'like', '%'.$status.'%'],
+                            [DB::raw("STR_TO_DATE(CONCAT(disposal_date,' 30'),'%M %Y %d')"), '<', $date],
+                            ])->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
                 }
                 else {
                     $data = $model_name->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                    $rows_count = $data->count();
                 }
             } else {
                 if($model === 'User'){
                     $data = $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                    $rows_count = $data->count();
                 }
-                elseif ($model === 'WithdrawalRequest') {
-                    $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                elseif (str_contains($model, 'Request')) {
+                    // $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status){
+                        $data = $model_name->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                }
+                elseif ($model === 'Inventory') {
+                    // $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status && $date===null){
+                        $data = $model_name->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    elseif($status && $date){
+                        $data = $model_name->where([
+                            ['status', 'like', '%'.$status.'%'],
+                            [DB::raw("STR_TO_DATE(CONCAT(disposal_date,' 30'),'%M %Y %d')"), '<', $date],
+                            ])->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
                 }
                 else {
                     $data = $model_name->skip($page * $limit)->take($limit)->get();
+                    $rows_count = $data->count();
                 }
                 // $data = $model === 'User' ? $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
                 //     $model_name->skip($page * $limit)->take($limit)->get();
@@ -108,29 +222,85 @@ class ApiDataTable
                 if ($filters[$index]->operator === 'not empty') array_push($where_arr, [$filters[$index]->column, '!=', null]);
             }
 
-            $rows_count = $model_name->where($where_arr)->count();
+            // $rows_count = $model_name->where($where_arr)->count();
 
             if ($orderBy) {
                 // $data = $model === 'User' ? $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get() :
                 //     $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
                 if($model === 'User'){
                     $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                    $rows_count = $data->count();
                 }
-                elseif ($model === 'WithdrawalRequest') {
-                    $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                elseif (str_contains($model, 'Request')) {
+                    // $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status){
+                        $data = $model_name->where($where_arr)->where('status', 'like', '%'.$status.'%')->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                }
+                elseif ($model === 'Inventory') {
+                    // $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status && $date===null){
+                        $data = $model_name->where($where_arr)->where('status', 'like', '%'.$status.'%')->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    elseif($status && $date){
+                        $data = $model_name->where([
+                            ['status', 'like', '%'.$status.'%'],
+                            [DB::raw("STR_TO_DATE(CONCAT(disposal_date,' 30'),'%M %Y %d')"), '<', $date],
+                            ])->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
                 }
                 else{
                     $data = $model_name->where($where_arr)->orderBy($orderBy, $order)->skip($page * $limit)->take($limit)->get();
+                    $rows_count = $data->count();
                 }
             } else {
                 if($model === 'User'){
                     $data = $model_name->skip($page * $limit)->take($limit)->with('role')->with('office')->get();
+                    $rows_count = $data->count();
                 }
-                elseif ($model === 'WithdrawalRequest') {
-                    $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                elseif (str_contains($model, 'Request')) {
+                    // $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status){
+                        $data = $model_name->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                        $rows_count = $data->count();
+                    }
+                }
+                elseif ($model === 'Inventory') {
+                    // $data = $model_name->skip($page * $limit)->take($limit)->with('user')->with('office')->with('inventory')->get();
+                    if($status && $date===null){
+                        $data = $model_name->where('status', 'like', '%'.$status.'%')->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    elseif($date && $status){
+                        $data = $model_name->where([
+                            ['status', 'like', '%'.$status.'%'],
+                            [DB::raw("STR_TO_DATE(CONCAT(disposal_date,' 30'),'%M %Y %d')"), '<', $date],
+                            ])->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
+                    else {
+                        $data = $model_name->skip($page * $limit)->take($limit)->with('storage')->with('withdrawal')->with('return')->with('disposal')->get();
+                        $rows_count = $data->count();
+                    }
                 }
                 else {
                     $data = $model_name->skip($page * $limit)->take($limit)->get();
+                    $rows_count = $data->count();
                 }
             }
         }

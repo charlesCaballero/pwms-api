@@ -25,4 +25,19 @@ class StorageRequest extends Model
         'remarks',
         'date_stored'
     ];
+
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class, 'id', 'inventory_id');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function office () {
+        return $this->hasOne(Office::class, 'id', 'office_id');
+    }
 }

@@ -22,7 +22,7 @@ class CreateWithdrawalRequestsTable extends Migration
             $table->date('date_retrieved')->nullable();
             $table->string('status', 50);
             $table->string('copy_type', 20);
-            $table->string('remarks');
+            $table->string('remarks')->nullable();
             $table->foreign('office_id')->references('id')->on('offices');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('inventory_id')->references('id')->on('inventory');

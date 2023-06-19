@@ -20,7 +20,7 @@ class CreateInventoriesTable extends Migration
             $table->json('box_details');
             $table->string('remarks')->nullable();
             $table->string('disposal_date', 30);
-            $table->string('location', 10);
+            $table->string('location', 15);
             $table->string('status', 50);
             $table->foreign('office_id')->references('id')->on('offices');
             $table->timestamps();

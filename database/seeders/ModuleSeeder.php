@@ -51,6 +51,11 @@ class ModuleSeeder extends Seeder
                 'icon' => 'FolderDeleteRounded',
             ],
             [
+                'name' => 'Inventory',
+                'reference' => '/app/inventory',
+                'icon' => 'Inventory',
+            ],
+            [
                 'name' => 'Offices',
                 'reference' => '/app/offices',
                 'icon' => 'LanRounded',

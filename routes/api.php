@@ -10,6 +10,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\StorageRequestController;
 use App\Http\Controllers\WithdrawalRequestController;
 use App\Http\Controllers\ReturnRequestController;
+use App\Http\Controllers\DisposalRequestController;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -33,15 +34,23 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::apiResource('office', OfficeController::class);
         Route::apiResource('role', RoleController::class);
         Route::apiResource('module', ModuleController::class);
-        Route::apiResource('inventory', InventoryController::class);
+        // Route::apiResource('inventory', InventoryController::class);
+        Route::get('inventory/{type}', [InventoryController::class,'index']);
+        Route::post('inventory', [InventoryController::class,'store']);
+        // Route::get('inventory/show', [InventoryController::class,'show']);
+        Route::put('inventory/{type}/{id}', [InventoryController::class,'update']);
         Route::group(['prefix' => 'request'], function () {
             Route::apiResource('storage', StorageRequestController::class);
             Route::apiResource('withdrawal', WithdrawalRequestController::class);
+            Route::get('return/retrieved', [ReturnRequestController::class, 'pending']);
             Route::apiResource('return', ReturnRequestController::class);
+            Route::get('disposal/pending', [DisposalRequestController::class, 'pending']);
+            Route::apiResource('disposal', DisposalRequestController::class);
         });
     });
 
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/get/auth', [UserController::class, 'details']);
 });
 
 Route::group(['prefix' => 'get'], function () {

@@ -35,7 +35,7 @@ class WithdrawalRequest extends Model
 
     public function user()
     {
-        return $this->hasOne(Office::class, 'id', 'user_id');
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 
     public function office () {

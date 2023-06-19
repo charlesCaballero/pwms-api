@@ -15,16 +15,18 @@ class CreateReturnRequestsTable extends Migration
     {
         Schema::create('return_requests', function (Blueprint $table) {
             $table->id();
-            $table->string('form_no')->unique();
+            $table->string('form_no');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('office_id');
             $table->unsignedBigInteger('inventory_id');
+            $table->unsignedBigInteger('withdrawal_id');
             $table->date('date_returned')->nullable();
             $table->string('status', 50);
-            $table->string('remarks');
+            $table->string('remarks')->nullable();
             $table->foreign('office_id')->references('id')->on('offices');
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('inventory_id')->references('id')->on('inventory');
+            $table->foreign('withdrawal_id')->references('id')->on('withdrawal_requests');
             $table->timestamps();
         });
     }

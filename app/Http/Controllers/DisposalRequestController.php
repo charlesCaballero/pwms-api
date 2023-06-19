@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use App\Traits\ApiResponser;
 use App\Models\User;
 use App\Models\Inventory;
-use App\Models\StorageRequest;
+use App\Models\WithdrawalRequest;
+use App\Models\DisposalRequest;
 use Auth;
+use Carbon\Carbon;
 
-class StorageRequestController extends Controller
+class DisposalRequestController extends Controller
 {
     use ApiResponser;
     /**
@@ -21,6 +23,23 @@ class StorageRequestController extends Controller
     public function index(Request $request)
     {
         $datatable = new ApiDataTable();
+        $date = Carbon::now();
+        return $datatable->data_table_query(
+            $request->page,
+            $request->limit,
+            $request->order,
+            $request->orderBy,
+            $request->search,
+            json_decode($request->filters),
+            'Inventory',
+            'In Storage',//query with status 
+            $date//query with date
+        );
+    }
+
+    public function pending(Request $request)
+    {
+        $datatable = new ApiDataTable();
         $result = $datatable->data_table_query(
             $request->page,
             $request->limit,
@@ -28,8 +47,8 @@ class StorageRequestController extends Controller
             $request->orderBy,
             $request->search,
             json_decode($request->filters),
-            'StorageRequest',
-            'Awaiting storage request form'//query with status 
+            'DisposalRequest',
+            'Awaiting disposal request form'//query with status 
         );
         $data = [];
         foreach ($result['data'] as $row) {
@@ -72,6 +91,15 @@ class StorageRequestController extends Controller
 
         return (['data'=> $data, 'rows'=> count($data) ]);
     }
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -81,7 +109,31 @@ class StorageRequestController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $lastDisposalReqForm = DisposalRequest::latest()->value('form_no');
+        $newDisposalReqForm = DisposalRequest::count()>0 ? ((int)substr($lastDisposalReqForm, -3))+1 : 1;
+        foreach ($request->all() as $box) {
+            $disposal = DisposalRequest::create([
+                'form_no'       => 'D-'.date('Y').'-'.str_pad($newDisposalReqForm, 3, '0', STR_PAD_LEFT),
+                'user_id'       => Auth::user()->id,
+                'office_id'     => Auth::user()->office_id,
+                'inventory_id'  => $box["id"],
+                'status'        => 'Awaiting disposal request form',
+            ]);
+            $inventory = Inventory::where('id', $box["id"])
+                                    ->update(['status' => 'Awaiting disposal request form']);
+        }   
+        $data['details'] = $request->all();
+        $data["form_no"] = 'D-'.date('Y').'-'.str_pad($newDisposalReqForm, 3, '0', STR_PAD_LEFT);
+        $explodeBoxCode = explode('-', $data['details'][0]["box_code"]);
+        $data["office"] = $explodeBoxCode[0];
+        $user = User::find(Auth::user()->id);
+        $firstName = $user->first_name;
+        $lastName = $user->last_name;
+        $data["user_name"] = $firstName . ' ' . $lastName;
+        return $this->success(
+            $data,
+            'Success',
+        );
     }
 
     /**
@@ -91,6 +143,17 @@ class StorageRequestController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
     {
         //
     }
@@ -107,11 +170,11 @@ class StorageRequestController extends Controller
         $req=$request->all();
         foreach ($req['details'] as $box) {
             Inventory::where('id', $box['id'])->update([
-                'status'        => 'Ongoing storage request',
+                'status'        => 'Ongoing disposal request',
             ]);
         }
-        StorageRequest::where('form_no', $id)->update([
-            'status'        => 'Ongoing storage request',
+        DisposalRequest::where('form_no', $id)->update([
+            'status'        => 'Ongoing disposal request',
             // 'remarks'       => $req['remarks'],
         ]);
         return $this->success(
@@ -130,3 +193,4 @@ class StorageRequestController extends Controller
         //
     }
 }
+

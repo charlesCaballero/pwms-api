@@ -25,4 +25,21 @@ class Inventory extends Model
         'location',
         'status',
     ];
+
+    public function storage()
+    {
+        return $this->hasOne(StorageRequest::class, 'inventory_id', 'id');
+    }
+    public function withdrawal()
+    {
+        return $this->hasOne(WithdrawalRequest::class, 'inventory_id', 'id');
+    }
+    public function return()
+    {
+        return $this->hasOne(ReturnRequest::class, 'inventory_id', 'id');
+    }
+    public function disposal()
+    {
+        return $this->hasOne(DisposalRequest::class, 'inventory_id', 'id');
+    }
 }

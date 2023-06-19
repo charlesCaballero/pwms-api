@@ -129,4 +129,14 @@ class UserController extends Controller
             }
         } else return $this->error('Error.. empty photo.' . json_encode($request->all()), 500);
     }
+
+    public function details ()
+    {
+        $details = (object)array(
+            'user_name'=> Auth::user()->first_name." ".Auth::user()->last_name,
+            'id_number'=> Auth::user()->company_id_number,
+            'role_id'=> Auth::user()->role_id,
+        );
+        return $details;
+    }
 }
