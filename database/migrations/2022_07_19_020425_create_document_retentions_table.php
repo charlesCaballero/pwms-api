@@ -20,6 +20,7 @@ class CreateDocumentRetentionsTable extends Migration
             $table->string('series_title_description');
             $table->string('retention_period');
             $table->string('dept_unit');
+            $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }

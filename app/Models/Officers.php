@@ -23,4 +23,6 @@ class Officers extends Model
         'title',
         'office_id',
     ];
+
+    
 }

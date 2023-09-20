@@ -73,7 +73,6 @@ class UserController extends Controller
         } else {
             $user_data = User::where('company_id_number', $id)->with('role')->with('office')->get();
         }
-        // dd($user_data);
         return $user_data;
     }
 
@@ -109,7 +108,8 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $query = User::where('company_id_number',$id)->delete();
+        return $this->success($query,"Delete Success",200);
     }
 
     public function changePhoto(Request $request)

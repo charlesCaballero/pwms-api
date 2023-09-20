@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/register', [AuthController::class, 'register'])->middleware(['auth:sanctum']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 Route::group(['prefix' => 'get'], function () {
     Route::get('offices', [GetController::class, 'getOffices']);
+    Route::get('roles', [GetController::class, 'getRoles']);
     Route::get('retentions', [GetController::class, 'getRetentions']);
     Route::get('inventory/boxcode/{officeID}', [GetController::class, 'getNewBoxCode']);
 });

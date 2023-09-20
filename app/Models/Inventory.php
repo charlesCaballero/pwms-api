@@ -19,6 +19,8 @@ class Inventory extends Model
     protected $fillable = [
         'office_id',
         'box_code',
+        'priority_level',
+        'classification',
         'box_details',
         'remarks',
         'disposal_date',

@@ -51,7 +51,7 @@ class StorageRequestController extends Controller
                         'user_name'=>$row['user']['first_name']." ".$row['user']['last_name'],
                         'office'=>$row['office'],
                         'created_at'=>$row['created_at'],
-                        'status'=>$row['created_at'],
+                        'status'=>$row['status'],
                         'details'=>[$row['inventory']]
                     ]);
                 }

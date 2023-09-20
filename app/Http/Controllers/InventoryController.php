@@ -63,6 +63,7 @@ class InventoryController extends Controller
             $inventory = Inventory::create([
                 'office_id'     => $box["office_id"],
                 'box_code'      => $box["box_code"],
+                'priority_level'      => $box["priority_level"],
                 'box_details'   => json_encode($box["box_details"]),
                 'remarks'       => $box["remarks"],
                 'disposal_date' => $box["disposal_date"],

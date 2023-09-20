@@ -17,6 +17,7 @@ class CreateInventoriesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('office_id');
             $table->string('box_code')->unique();
+            $table->string('priority_level');
             $table->json('box_details');
             $table->string('remarks')->nullable();
             $table->string('disposal_date', 30);
