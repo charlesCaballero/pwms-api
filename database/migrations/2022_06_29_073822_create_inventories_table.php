@@ -23,7 +23,7 @@ class CreateInventoriesTable extends Migration
             $table->string('disposal_date', 30);
             $table->string('location', 15);
             $table->string('status', 50);
-            $table->foreign('office_id')->references('id')->on('offices');
+            $table->foreign('office_id')->references('id')->on('offices')->onDelete('cascade');
             $table->timestamps();
         });
     }

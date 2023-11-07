@@ -25,7 +25,7 @@ class CreateReturnRequestsTable extends Migration
             $table->string('remarks')->nullable();
             $table->foreign('office_id')->references('id')->on('offices');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('inventory_id')->references('id')->on('inventory');
+            $table->foreign('inventory_id')->references('id')->on('inventory')->onDelete('cascade');
             $table->foreign('withdrawal_id')->references('id')->on('withdrawal_requests');
             $table->timestamps();
         });

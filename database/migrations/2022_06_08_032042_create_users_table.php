@@ -24,10 +24,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->json('modules')->nullable();
-            $table->unsignedBigInteger('office_id');
+            $table->unsignedBigInteger('office_id')->nullable();
             $table->unsignedBigInteger('role_id')->nullable()->default(2);
-            $table->foreign('office_id')->references('id')->on('offices');
-            $table->foreign('role_id')->references('id')->on('roles');
+            $table->foreign('office_id')->references('id')->on('offices')->onDelete('set null');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('set null');
             $table->binary('photo')->nullable();
             $table->rememberToken();
             $table->timestamps();

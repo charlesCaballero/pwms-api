@@ -30,7 +30,7 @@ class ReturnRequestController extends Controller
             $request->search,
             json_decode($request->filters),
             'WithdrawalRequest',
-            'Retrieved'//query with status 
+            'Retrieved' //query with status 
         );
     }
 
@@ -45,7 +45,7 @@ class ReturnRequestController extends Controller
             $request->search,
             json_decode($request->filters),
             'ReturnRequest',
-            'Awaiting return request form'//query with status 
+            'Awaiting return request form' //query with status 
         );
         $index = 0;
         foreach ($result['data'] as $row) {
@@ -55,65 +55,63 @@ class ReturnRequestController extends Controller
         }
         $data = [];
         foreach ($result['data'] as $row) {
-            if(count($data)>=1){
-                $index=0;
-                $duplicate=false;
+            if (count($data) >= 1) {
+                $index = 0;
+                $duplicate = false;
                 foreach ($data as $values) {
-                    if($values['form_no']===$row['form_no']){
-                        array_push($data[$index]['details'],[
-                            'inventory_id'=>$row['inventory_id'],
-                            'box_code'=>$row['inventory']['box_code'],
-                            'withdrawal_form'=>$row['withdrawal']['form_no'],
-                            'remarks'=>$row['withdrawal']['remarks'],
-                            'location'=>$row['inventory']['location'],
+                    if ($values['form_no'] === $row['form_no']) {
+                        array_push($data[$index]['details'], [
+                            'inventory_id' => $row['inventory_id'],
+                            'box_code' => $row['inventory']['box_code'],
+                            'withdrawal_form' => $row['withdrawal']['form_no'],
+                            'remarks' => $row['withdrawal']['remarks'],
+                            'location' => $row['inventory']['location'],
                             'type' => $row['withdrawal']['copy_type'],
                         ]);
-                        $duplicate=true;
+                        $duplicate = true;
                         break;
                     }
                     $index++;
                 }
-                if(!$duplicate){
-                    array_push($data,[
-                        'id'=>$row['id'],
-                        'form_no'=>$row['form_no'],
-                        'user_name'=>$row['user']['first_name']." ".$row['user']['last_name'],
-                        'office'=>$row['office'],
-                        'created_at'=>$row['created_at'],
-                        'status'=>$row['created_at'],
-                        'details'=>[[
-                            'inventory_id'=>$row['inventory_id'],
-                            'box_code'=>$row['inventory']['box_code'],
-                            'withdrawal_form'=>$row['withdrawal']['form_no'],
-                            'remarks'=>$row['withdrawal']['remarks'],
-                            'location'=>$row['inventory']['location'],
+                if (!$duplicate) {
+                    array_push($data, [
+                        'id' => $row['id'],
+                        'form_no' => $row['form_no'],
+                        'user_name' => $row['user']['first_name'] . " " . $row['user']['last_name'],
+                        'office' => $row['office'],
+                        'created_at' => $row['created_at'],
+                        'status' => $row['created_at'],
+                        'details' => [[
+                            'inventory_id' => $row['inventory_id'],
+                            'box_code' => $row['inventory']['box_code'],
+                            'withdrawal_form' => $row['withdrawal']['form_no'],
+                            'remarks' => $row['withdrawal']['remarks'],
+                            'location' => $row['inventory']['location'],
                             'type' => $row['withdrawal']['copy_type'],
                         ]]
                     ]);
                 }
-                
-            }
-            else{
-                array_push($data,[
-                    'id'=>$row['id'],
-                    'form_no'=>$row['form_no'],
-                    'user_name'=>$row['user']['first_name']." ".$row['user']['last_name'],
-                    'office'=>$row['office'],
-                    'created_at'=>$row['created_at'],
-                    'status'=>$row['status'],
-                    'details'=>[[
-                        'inventory_id'=>$row['inventory_id'],
-                        'box_code'=>$row['inventory']['box_code'],
-                        'withdrawal_form'=>$row['withdrawal']['form_no'],
-                        'remarks'=>$row['withdrawal']['remarks'],
-                        'location'=>$row['inventory']['location'],
+            } else {
+                array_push($data, [
+                    'id' => $row['id'],
+                    'form_no' => $row['form_no'],
+                    'user_name' => $row['user']['first_name'] . " " . $row['user']['last_name'],
+                    'office' => $row['office'],
+                    'created_at' => $row['created_at'],
+                    'status' => $row['status'],
+                    'details' => [[
+                        'inventory_id' => $row['inventory_id'],
+                        'box_code' => $row['inventory']['box_code'],
+                        'withdrawal_form' => $row['withdrawal']['form_no'],
+                        'remarks' => $row['withdrawal']['remarks'],
+                        'location' => $row['inventory']['location'],
                         'type' => $row['withdrawal']['copy_type'],
                     ]]
                 ]);
             }
         }
 
-        return (['data'=> $data, 'rows'=> count($data) ]);
+        return (['data' => $data, 'rows' => count($data)]);
     }
 
     /**
@@ -135,10 +133,10 @@ class ReturnRequestController extends Controller
     public function store(Request $request)
     {
         $lastReturnReqForm = ReturnRequest::latest()->value('form_no');
-        $newReturnReqForm = ReturnRequest::count()>0 ? ((int)substr($lastReturnReqForm, -3))+1 : 1;
+        $newReturnReqForm = ReturnRequest::count() > 0 ? ((int)substr($lastReturnReqForm, -3)) + 1 : 1;
         foreach ($request->all() as $box) {
             $returns = ReturnRequest::create([
-                'form_no'       => 'R-'.date('Y').'-'.str_pad($newReturnReqForm, 3, '0', STR_PAD_LEFT),
+                'form_no'       => 'R-' . date('Y') . '-' . str_pad($newReturnReqForm, 3, '0', STR_PAD_LEFT),
                 'user_id'       => Auth::user()->id,
                 'office_id'     => Auth::user()->office_id,
                 'inventory_id'  => $box["inventory_id"],
@@ -147,12 +145,12 @@ class ReturnRequestController extends Controller
                 // 'remarks'       => $box["remarks"],
             ]);
             $inventory = Inventory::where('id', $box["inventory_id"])
-                                    ->update(['status' => 'Awaiting return request form']);
-            // $withdrawal = WithdrawalRequest::where('id', $box["withdrawal_id"])
-            //                         ->update(['status' => 'Awaiting return request form']);
-        }   
+                ->update(['status' => 'Awaiting return request form']);
+            $withdrawal = WithdrawalRequest::where('id', $box["withdrawal_id"])
+                ->update(['status' => 'Awaiting return request form']);
+        }
         $data['details'] = $request->all();
-        $data["form_no"] = 'R-'.date('Y').'-'.str_pad($newReturnReqForm, 3, '0', STR_PAD_LEFT);
+        $data["form_no"] = 'R-' . date('Y') . '-' . str_pad($newReturnReqForm, 3, '0', STR_PAD_LEFT);
         $explodeBoxCode = explode('-', $data['details'][0]["box_code"]);
         $data["office"] = $explodeBoxCode[0];
         $user = User::find(Auth::user()->id);
@@ -196,7 +194,7 @@ class ReturnRequestController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $req=$request->all();
+        $req = $request->all();
         foreach ($req['details'] as $box) {
             Inventory::where('id', $box['inventory_id'])->update([
                 'status'        => 'Ongoing return request',

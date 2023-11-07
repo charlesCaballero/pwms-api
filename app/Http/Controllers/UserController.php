@@ -108,6 +108,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        // $query = User::where('company_id_number',$id)->delete();
         $query = User::where('company_id_number',$id)->delete();
         return $this->success($query,"Delete Success",200);
     }
