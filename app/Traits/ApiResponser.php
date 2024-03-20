@@ -28,8 +28,9 @@ trait ApiResponser
 		return response()->json([
 			'status' => 'Success',
 			'message' => $message,
-			'data' => $data
-		], $code);
+			'data' => $data,
+			'code' => $code
+		]);
 	}
 
 	/**
