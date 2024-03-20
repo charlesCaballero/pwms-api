@@ -15,9 +15,10 @@ return new class extends Migration
     {
         Schema::create('offices', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('acronym');
-            $table->string('code');
+            $table->string('name')->unique();
+            $table->string('acronym')->unique();
+            $table->string('code')->unique();
+            // $table->string('type');
             $table->timestamps();
         });
     }

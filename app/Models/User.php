@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +22,7 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'office_id',
+        'role_id',
         'email',
         'password',
     ];
@@ -44,4 +45,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function office () {
+        return $this->hasOne(Office::class, 'id', 'office_id');
+    }
+
+    public function role () {
+        return $this->hasOne(Role::class, 'id', 'role_id');
+    }
 }
